@@ -8,9 +8,9 @@ import matplotlib.patches as patches
 import numpy as np
 import scipy.ndimage.filters as nd_filters
 import math
+import skimage.feature as feature
 
-from scipy.ndimage import gaussian_filter
-import cv2
+# from scipy.ndimage import gaussian_filter
 
 
 def histogram_ho(image, k):
@@ -161,11 +161,12 @@ def overlapped_helo(image, B, k):
     dy = image.shape[1]/B
     for i in range(B):
         for j in range(B):
-            x1 = dx*(i + 1/2 + math.cos(-angles[i][j])*mag[i][j]/(max_mag*2))
-            x2 = dx*(i + 1/2 - math.cos(-angles[i][j])*mag[i][j]/(max_mag*2))
-            y1 = dy*(j + 1/2 + math.sin(-angles[i][j])*mag[i][j]/(max_mag*2))
-            y2 = dy*(j + 1/2 - math.sin(-angles[i][j])*mag[i][j]/(max_mag*2))
-            xs[1].plot([y1, y2], [x1, x2])
+            if mag[i][j] > max_mag/8:
+                x1 = dx*(i + 1/2 + math.cos(-angles[i][j])/2)
+                x2 = dx*(i + 1/2 - math.cos(-angles[i][j])/2)
+                y1 = dy*(j + 1/2 + math.sin(-angles[i][j])/2)
+                y2 = dy*(j + 1/2 - math.sin(-angles[i][j])/2)
+                xs[1].plot([y1, y2], [x1, x2], 'y')
     plt.show()
 
 
@@ -241,11 +242,12 @@ def overlapped_shelo(image, B, k):
     dy = image.shape[1]/B
     for i in range(B):
         for j in range(B):
-            x1 = dx*(i + 1/2 + math.cos(-angles[i][j])/2)
-            x2 = dx*(i + 1/2 - math.cos(-angles[i][j])/2)
-            y1 = dy*(j + 1/2 + math.sin(-angles[i][j])/2)
-            y2 = dy*(j + 1/2 - math.sin(-angles[i][j])/2)
-            xs[1].plot([y1, y2], [x1, x2], 'y')
+            if mag[i][j] > max_mag/8:
+                x1 = dx*(i + 1/2 + math.cos(-angles[i][j])/2)
+                x2 = dx*(i + 1/2 - math.cos(-angles[i][j])/2)
+                y1 = dy*(j + 1/2 + math.sin(-angles[i][j])/2)
+                y2 = dy*(j + 1/2 - math.sin(-angles[i][j])/2)
+                xs[1].plot([y1, y2], [x1, x2], 'y')
     plt.show()
 
 
@@ -253,6 +255,8 @@ filename = './dataset_1/BD_2/chair/180016.jpg'
 # filename = 'Y-FlyerLogo.png'
 image = pai_io.imread(filename, as_gray = True)
 
+canny_image = 1 - feature.canny(image/255, sigma=1.5)
+
 # image = cv2.Canny(image, 100, 200)
 
-overlapped_shelo(image, 25, 36)
+overlapped_helo(canny_image, 25, 36)
